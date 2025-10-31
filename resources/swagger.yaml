@@ -1,0 +1,329 @@
+openapi: 3.0.0
+info:
+  title: API Clínica Veterinária
+  version: '1.0.0'
+  description: API para acompanhamento do quadro clínico de pacientes de uma clínica veterinária.
+servers:
+  - url: http://localhost:3000
+paths:
+  /auth/medico/register:
+    post:
+      summary: Registrar médico veterinário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                senha:
+                  type: string
+      responses:
+        '201':
+          description: Médico criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedicoResponse'
+        '400':
+          description: Erro de validação (e-mail já cadastrado)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/dono/register:
+    post:
+      summary: Registrar dono do pet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                email:
+                  type: string
+                senha:
+                  type: string
+      responses:
+        '201':
+          description: Dono criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DonoResponse'
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/login:
+    post:
+      summary: Login (médico ou dono)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                senha:
+                  type: string
+      responses:
+        '200':
+          description: Token JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /pets:
+    post:
+      summary: Criar pet (médico)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                especie:
+                  type: string
+                raca:
+                  type: string
+                donoId:
+                  type: string
+      responses:
+        '201':
+          description: Pet criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          description: Dono não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Buscar/listar pets
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Texto para buscar por nome ou raça
+      responses:
+        '200':
+          description: Lista de pets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+  /pets/{id}:
+    get:
+      summary: Obter dados e histórico do pet
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pet e histórico
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pet:
+                    $ref: '#/components/schemas/Pet'
+                  history:
+                    type: object
+                    properties:
+                      consultas:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Consulta'
+                      procedimentos:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Procedimento'
+        '403':
+          description: Acesso negado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Pet não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /consultas:
+    post:
+      summary: Registrar consulta (médico)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                petId:
+                  type: string
+                data:
+                  type: string
+                  format: date-time
+                descricao:
+                  type: string
+      responses:
+        '201':
+          description: Consulta criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+        '400':
+          description: Pet ou médico não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /procedimentos:
+    post:
+      summary: Registrar procedimento (médico)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                petId:
+                  type: string
+                data:
+                  type: string
+                  format: date-time
+                descricao:
+                  type: string
+      responses:
+        '201':
+          description: Procedimento criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Procedimento'
+        '400':
+          description: Pet ou médico não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    MedicoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        email:
+          type: string
+    DonoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        email:
+          type: string
+    Pet:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        especie:
+          type: string
+        raca:
+          type: string
+        donoId:
+          type: string
+    Consulta:
+      type: object
+      properties:
+        id:
+          type: string
+        petId:
+          type: string
+        medicoId:
+          type: string
+        data:
+          type: string
+          format: date-time
+        descricao:
+          type: string
+    Procedimento:
+      type: object
+      properties:
+        id:
+          type: string
+        petId:
+          type: string
+        medicoId:
+          type: string
+        data:
+          type: string
+          format: date-time
+        descricao:
+          type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
