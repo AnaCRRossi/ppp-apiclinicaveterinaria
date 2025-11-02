@@ -26,7 +26,44 @@ npm run dev
 
 - http://localhost:3000/docs
 
-Observações
+## Testes de Performance (k6)
 
-- Para simplicidade, o JWT secret padrão está embutido no código (`trocar_esse_segredo_em_producao`). Em produção, definir `JWT_SECRET`.
-- O banco de dados é em memória; para persistência, substituir por uma camada de armazenamento.
+Os testes de performance são utilizados para validar o comportamento da API sob carga e verificar se os endpoints respondem corretamente. Execute após iniciar a API com `npm run dev`.
+
+### Executar testes k6 básicos:
+```bash
+npm run test:k6
+```
+
+### Visualizar relatórios HTML em tempo real:
+
+Execute o teste com web dashboard e acesse **http://127.0.0.1:5665** no navegador **durante a execução**:
+
+```bash
+# Teste de autenticação (30 segundos de duração)
+k6 run --out web-dashboard --duration 30s tests/k6/auth.test.js
+
+# Teste de pets
+k6 run --out web-dashboard --duration 30s tests/k6/pets.test.js
+
+# Teste de consultas
+k6 run --out web-dashboard --duration 30s tests/k6/consultas.test.js
+
+# Teste de procedimentos
+k6 run --out web-dashboard --duration 30s tests/k6/procedimentos.test.js
+```
+
+**⚠️ Importante**: O dashboard HTML só fica disponível **enquanto o teste está executando**. Abra http://127.0.0.1:5665 logo após iniciar o comando.
+
+Os relatórios em tempo real contêm gráficos interativos sobre:
+- Tempo de resposta dos endpoints
+- Taxa de sucesso/falha das requisições
+- Métricas de performance sob carga
+- Validação dos checks definidos nos testes
+
+**Pré-requisitos para testes k6:**
+- API rodando (`npm run dev`)
+- k6 instalado ([instruções de instalação](https://k6.io/docs/getting-started/installation/))
+- Usuários cadastrados (médico e dono) para autenticação
+
+

@@ -1,7 +1,16 @@
 import http from 'k6/http';
+import { sleep, check } from 'k6';
 
 export const options = {
-  iterations: 10,
+    stages: [
+        { duration: '10s', target: 10 },
+        { duration: '20s', target: 20 },
+        { duration: '20s', target: 30 },
+        { duration: '10s', target: 10 },
+    ],
+    thresholds: {
+        http_req_duration: ['p(95)<30'],
+    },
 };
 
 export default function () {
@@ -21,6 +30,9 @@ export default function () {
         },
     };
 
-   const resposta = http.post(url, payload, params);
-   console.log(`Pet - Resposta ${resposta.status}: ${resposta.body}`);
+    const res = http.post(url, payload, params);
+    check(res, {
+        'Pet criado com sucesso': (r) => r.status === 201,
+    });
+    sleep(1);
 }

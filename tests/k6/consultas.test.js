@@ -1,7 +1,16 @@
 import http from 'k6/http';
+import { sleep, check } from 'k6';
 
 export const options = {
-  iterations: 10,
+    stages: [
+        { duration: '10s', target: 10 },
+        { duration: '20s', target: 20 },
+        { duration: '20s', target: 30 },
+        { duration: '10s', target: 10 },
+    ],
+    thresholds: {
+        http_req_duration: ['p(95)<30'],
+    },
 };
 
 export default function () {
@@ -20,10 +29,12 @@ export default function () {
         idade: 3,
         donoId: "2"
     });
-    
+
     const petResponse = http.post('http://localhost:3000/pets', petPayload, params);
-    console.log(`Pet - Resposta ${petResponse.status}: ${petResponse.body}`);
-    
+    check(petResponse, {
+        'pet criado com sucesso': (r) => r.status === 201,
+    });
+
     if (petResponse.status === 201) {
         const pet = JSON.parse(petResponse.body);
         const petId = pet.id;
@@ -35,7 +46,10 @@ export default function () {
             data: '2025-11-02'
         });
 
-        const consultaResponse = http.post('http://localhost:3000/consultas', consultaPayload, params);
-        console.log(`Consulta - Resposta ${consultaResponse.status}: ${consultaResponse.body}`);
+        const consultaRes = http.post('http://localhost:3000/consultas', consultaPayload, params);
+        check(consultaRes, {
+            'Consulta criada com sucesso': (r) => r.status === 201,
+        });
+        sleep(1);
     }
 }
