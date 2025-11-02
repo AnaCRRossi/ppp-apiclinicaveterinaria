@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon --watch src --exec node src/app.js",
-    "test": "mocha tests/**/*.test.js --exit"
+    "test": "mocha tests/mocha/**/*.test.js --exit",
+    "test:k6": "k6 run tests/k6/auth.test.js && k6 run tests/k6/pets.test.js && k6 run tests/k6/consultas.test.js && k6 run tests/k6/procedimentos.test.js"
   },
   "repository": {
     "type": "git",
