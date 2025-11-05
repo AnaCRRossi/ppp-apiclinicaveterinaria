@@ -9,8 +9,8 @@ Projeto: API REST para acompanhamento do quadro clínico de pacientes de uma cl�
 - ✅ **CRUD completo** para pets, consultas e procedimentos
 - ✅ **Endpoints GET** para listagem de consultas e procedimentos
 - ✅ **Documentação Swagger** interativa
+- ✅ **Testes automatizados** com Mocha/Chai/SuperTest
 - ✅ **Testes de performance** com k6
-- ✅ **Testes funcionais** com Postman
 - ⚠️ **Armazenamento em memória** (dados perdidos ao reiniciar)
 
 ## 📋 Endpoints Disponíveis
@@ -47,7 +47,20 @@ Projeto: API REST para acompanhamento do quadro clínico de pacientes de uma cl�
    npm run dev
    ```
 
-3. **Acesse a documentação:**
+3. **Execute os testes:**
+   ```bash
+   # Testes principais (autenticação + autorização)
+   npm run test:principais
+   
+   # Todos os testes funcionais
+   npm test
+   
+   # Testes específicos
+   npm run test:auth        # Apenas autenticação
+   npm run test:authorization  # Apenas autorização
+   ```
+
+4. **Acesse a documentação:**
    - **Swagger UI**: http://localhost:3000/docs
 
 ## Testes de Performance (k6)
@@ -90,90 +103,177 @@ Os relatórios em tempo real contêm gráficos interativos sobre:
 - k6 instalado ([instruções de instalação](https://k6.io/docs/getting-started/installation/))
 - Usuários cadastrados (médico e dono) para autenticação
 
-## 🧪 Testes Funcionais (Postman)
+## 🧪 Testes Automatizados
 
-Os testes funcionais validam o comportamento correto de todos os endpoints da API através do Postman.
+Este projeto implementa uma **suíte completa de testes automatizados** utilizando **Mocha**, **Chai** e **SuperTest** para garantir a qualidade e confiabilidade da API.
 
-### 📝 **Coleção de Testes Implementada:**
+### � **Estrutura dos Testes**
 
-| # | Teste | Endpoint | Método | Status |
-|---|-------|----------|--------|--------|
-| 1 | Registrar Médico | `/auth/medico/register` | POST | ✅ |
-| 2 | Registrar Dono | `/auth/dono/register` | POST | ✅ |
-| 3 | Login Médico | `/auth/login` | POST | ✅ |
-| 4 | Criar Pet | `/pets` | POST | ✅ |
-| 5 | Criar Consulta | `/consultas` | POST | ✅ |
-| 6 | Criar Procedimento | `/procedimentos` | POST | ✅ |
-| 7 | Listar Pets | `/pets` | GET | ✅ |
-| **8** | **Listar Consultas** | `/consultas` | **GET** |
-| **9** | **Listar Procedimentos** | `/procedimentos` | **GET** |
-| 10 | Erro - Pet sem Token | `/pets` | POST | ✅ |
-| 12 | Erro - Pet com Dono Inexistente | `/pets` | POST | ✅ |
+```
+tests/
+├── supertest/
+│   ├── helpers/              # Utilitários de apoio
+│   │   ├── setup.js         # Configuração base dos testes
+│   │   ├── fixtures.js      # Dados de teste padronizados
+│   │   └── auth-helper.js   # Utilitários de autenticação
+│   └── funcional/           # Testes funcionais da API
+│       ├── autenticacao.test.js  # Testes de login e registro
+│       └── autorizacao.test.js   # Testes de controle de acesso
+└── k6/                      # Testes de performance
+```
 
-### 🚀 **Como executar os testes:**
+### 🚀 **Scripts de Teste Disponíveis**
 
-1. **Inicie a API:**
-   ```bash
-   npm start
-   ```
+```bash
+# 📊 PRINCIPAIS - Executa testes essenciais (autenticação + autorização)
+npm run test:principais
 
-2. **Configure o Postman:**
-   - **Base URL**: `http://localhost:3000`
-   - **Environment Variable**: 
-     - `baseUrl`: `http://localhost:3000`
-     - `token`: (será preenchido após login)
+# 🔄 TODOS - Executa toda a suíte de testes funcionais
+npm test
 
-3. **Fluxo de testes recomendado:**
+# 🔐 ESPECÍFICOS - Executa testes por categoria
+npm run test:auth          # Apenas autenticação (login, registro, validação)
+npm run test:authorization # Apenas autorização (controle de acesso)
+
+# 👀 MODO WATCH - Executa testes automaticamente ao salvar arquivos
+npm run test:watch
+```
+
+### 📋 **Cobertura de Testes Implementada**
+
+#### **🔐 Testes de Autenticação** (`autenticacao.test.js`)
+- ✅ **Login de usuários** (médico e dono)
+- ✅ **Registro de médicos** e **donos**
+- ✅ **Validação de credenciais** (sucesso e erro)
+- ✅ **Verificação de tokens JWT**
+- ✅ **Detecção de emails duplicados**
+- ❌ **Validação de dados de entrada** (2 bugs identificados)
+
+#### **🛡️ Testes de Autorização** (`autorizacao.test.js`)
+- ✅ **Controle de acesso por perfil** (médico vs dono)
+- ✅ **Proteção de endpoints** sem token
+- ✅ **Validação de tokens inválidos**
+- ✅ **Acesso a recursos protegidos**
+- ✅ **Criação de pets** com permissões adequadas
+
+### � **Status Atual dos Testes**
+
+```
+✅ 20 testes passando (91%)
+❌ 2 testes falhando (9%)
+
+Testes por categoria:
+🔐 Autenticação:  10/12 (83%) - 2 bugs de validação identificados
+🛡️ Autorização:   10/10 (100%) - Todos os controles funcionando
+```
+
+### 🐛 **Bugs Identificados pelos Testes**
+
+Os testes automatizados identificaram **2 bugs reais** na validação da API:
+
+1. **❌ Validação de Email Inválido**
+   - **Problema**: API aceita emails sem formato válido (ex: "email-sem-arroba")
+   - **Esperado**: Retornar erro 400 com mensagem de email inválido
+   - **Atual**: Retorna 201 (sucesso) e cria usuário
+
+2. **❌ Validação de Nome Vazio**
+   - **Problema**: API aceita registro com campo nome vazio
+   - **Esperado**: Retornar erro 400 com mensagem de nome obrigatório
+   - **Atual**: Retorna 201 (sucesso) e cria usuário
+
+### 🛠️ **Utilitários de Teste (Helpers)**
+
+#### **`setup.js`** - Configuração Base
+- Configuração do Chai + SuperTest
+- Função `clearDatabase()` para isolamento entre testes
+- Exporta `expect` e `request` para uso nos testes
+
+#### **`fixtures.js`** - Dados Padronizados
+- Dados válidos para médicos, donos, pets, consultas e procedimentos
+- Múltiplas variações para cenários diversos
+- Dados inválidos para testes de erro
+- Credenciais de login centralizadas
+
+#### **`auth-helper.js`** - Utilitários de Autenticação
+- `createMedicoAndLogin()` - Registra médico + retorna token
+- `createDonoAndLogin()` - Registra dono + retorna token
+- `createCompleteSetup()` - Setup completo (médico, dono, pet)
+- `authenticatedRequest()` - Helper para requisições autenticadas
+
+### 🎯 **Benefícios dos Testes Automatizados**
+
+- **🔍 Detecção precoce de bugs** - Encontrou 2 problemas de validação
+- **🛡️ Confiabilidade** - Garante que mudanças não quebrem funcionalidades
+- **📚 Documentação viva** - Testes servem como documentação dos requisitos
+- **🚀 Deploy seguro** - Validação automática antes de releases
+- **🔄 Regressão** - Evita que bugs corrigidos voltem a aparecer
+
+### � **Como Interpretar os Resultados**
+
+```bash
+# Execução bem-sucedida mostra:
+✔ Deve retornar 200 com um token em string quando usuario e senha válidos
+✔ Deve permitir acesso para médico autenticado
+✔ Deve negar acesso para dono de pet
+
+# Bugs identificados mostram:
+1) Deve retornar erro 400 quando email tem formato inválido
+   AssertionError: expected 201 to equal 400
    
-   **📋 Pré-requisitos:**
-   - ✅ Registrar médico (`POST /auth/medico/register`)
-   - ✅ Fazer login (`POST /auth/login`) → Copiar token
-   
-   **🧪 Testes principais:**
-   - ✅ Criar recursos (pets, consultas, procedimentos)
-   - ✅ **Listar consultas** (`GET /consultas`) → Deve retornar array
-   - ✅ **Listar procedimentos** (`GET /procedimentos`) → Deve retornar array
-   - ✅ Testar cenários de erro (sem token, dados inválidos)
+2) Deve retornar erro 400 quando nome está vazio  
+   AssertionError: expected 201 to equal 400
+```
 
-### 🔐 **Configuração de Autenticação:**
-
-**⚠️ Importante**: Use a **aba Authorization** no Postman para configurar o token:
-
-1. **Type**: Bearer Token
-2. **Token**: Cole o JWT obtido no login (sem "Bearer ")
-
-**Evite** configurar Authorization na aba Headers para prevenir inconsistências.
-
-### 📊 **Resultados dos Testes:**
-
-- ✅ **Todos os endpoints básicos funcionais**
-- ✅ **Novos endpoints GET implementados e testados**
-- ✅ **Autenticação JWT funcionando corretamente**
-- ✅ **Controle de acesso por perfil validado**
-- ⚠️ **Issue reportada**: Inconsistência na autenticação via Headers vs Authorization
+Esta implementação representa um **caso realista** onde a maioria dos testes passa (91%), mas ainda existem alguns problemas de validação que foram identificados e documentados pelos testes.
 
 ## 🆕 Changelog - Latest Updates
 
 ### **Novembro 2025** - Branch `tests/api`
 
-#### ✨ **Funcionalidades Adicionadas:**
-- **Endpoint GET /consultas**: Listagem de todas as consultas (apenas médicos)
-- **Endpoint GET /procedimentos**: Listagem de todos os procedimentos (apenas médicos)
-- **Testes Postman completos**: 12 testes cobrindo todos os cenários principais
-- **Validação de autenticação**: Endpoints protegidos por JWT
+#### ✨ **Principais Implementações:**
 
-#### 🐛 **Issues Identificadas:**
-- **#1**: Inconsistência na autenticação JWT entre diferentes métodos de configuração no Postman
+**🧪 Suíte de Testes Automatizados**
+- **Framework**: Mocha + Chai + SuperTest para testes de integração
+- **Estrutura organizada**: Helpers para reutilização e fixtures para dados padronizados
+- **22 testes implementados**: Cobertura completa de autenticação e autorização
+- **Scripts personalizados**: `test:principais`, `test:auth`, `test:authorization`
+- **Isolamento**: Limpeza automática do banco entre testes
 
-#### 🧪 **Testes Implementados:**
-- **Testes funcionais**: Cobertura completa dos endpoints via Postman
-- **Testes de erro**: Validação de cenários de falha (token inválido, recursos inexistentes)
-- **Testes de autorização**: Validação de controle de acesso por perfil
+**🔐 Testes de Autenticação**
+- Login e registro de médicos e donos
+- Validação de tokens JWT
+- Detecção de emails duplicados
+- Verificação de credenciais inválidas
+- Testes de validação de entrada de dados
 
-#### 📚 **Documentação:**
-- README atualizado com endpoints GET
-- Guia completo de testes Postman
-- Documentação de configuração de autenticação
+**🛡️ Testes de Autorização**
+- Controle de acesso por perfil (médico vs dono)
+- Proteção de endpoints sem autenticação
+- Validação de tokens inválidos
+- Permissões específicas para criação de recursos
+
+**🛠️ Infraestrutura de Testes**
+- **Helpers organizados**: `setup.js`, `fixtures.js`, `auth-helper.js`
+- **Dados padronizados**: Fixtures centralizados para consistência
+- **Utilitários de autenticação**: Funções helper para login automatizado
+- **Limpeza automática**: Reset do banco entre cada teste
+
+#### 🐛 **Bugs Identificados pelos Testes:**
+- **Validação de email**: API aceita emails com formato inválido
+- **Validação de nome**: API aceita registro com nome vazio
+- **Status**: 91% dos testes passando (20/22) - bugs documentados para correção
+
+#### 📊 **Melhorias na Qualidade:**
+- **Detecção precoce**: Bugs encontrados automaticamente pelos testes
+- **Documentação viva**: Testes servem como especificação dos requisitos
+- **Regressão**: Prevenção de bugs em futuras alterações
+- **Confiabilidade**: Validação automática de funcionalidades críticas
+
+#### �️ **Reorganização do Projeto:**
+- Pasta `integration` renomeada para `funcional` (mais intuitivo)
+- Estrutura de helpers bem definida e documentada
+- Scripts npm organizados e com nomes em português
+- README completamente reescrito com foco nos testes automatizados
 
 ---
 
@@ -191,8 +291,9 @@ Este projeto está sob a licença ISC. Veja o arquivo `package.json` para mais d
 
 ## 🎯 Próximos Passos
 
-- [ ] Resolver issue de inconsistência na autenticação
-- [ ] Implementar banco de dados persistente
-- [ ] Adicionar validações mais robustas
-- [ ] Implementar testes automatizados (Jest)
-- [ ] Deploy para produção
+- [ ] **Corrigir bugs de validação** identificados pelos testes automatizados
+- [ ] **Implementar banco de dados persistente** (PostgreSQL/MySQL)
+- [ ] **Expandir cobertura de testes** para endpoints de pets, consultas e procedimentos
+- [ ] **Adicionar testes unitários** para services e controllers
+- [ ] **Implementar CI/CD** com execução automática dos testes
+- [ ] **Deploy para produção** com pipeline de testes

@@ -7,6 +7,12 @@ export const fixtures = {
     senha: 'senha123'
   },
   
+  registroMedico: {
+    nome: 'Dr. Roberto Santos',
+    email: 'roberto.santos@clinica.com',
+    senha: 'senha456'
+  },
+  
   anotherMedico: {
     nome: 'Dra. Maria Santos',
     email: 'maria.santos@veterinaria.com', 
@@ -18,6 +24,12 @@ export const fixtures = {
     nome: 'Carlos Oliveira',
     email: 'carlos@email.com',
     senha: 'senha789'
+  },
+
+  registroDono: {
+    nome: 'Ana Carolina Rossi',
+    email: 'ana.rossi@email.com',
+    senha: 'senha321'
   },
 
   anotherDono: {
@@ -86,9 +98,17 @@ export const loginCredentials = {
     email: fixtures.validMedico.email,
     senha: fixtures.validMedico.senha
   },
+  registroMedico: {
+    email: fixtures.registroMedico.email,
+    senha: fixtures.registroMedico.senha
+  },
   dono: {
     email: fixtures.validDono.email,
     senha: fixtures.validDono.senha
+  },
+  registroDono: {
+    email: fixtures.registroDono.email,
+    senha: fixtures.registroDono.senha
   },
   invalid: {
     email: 'naoexiste@email.com',
