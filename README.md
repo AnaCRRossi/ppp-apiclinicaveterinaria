@@ -1,17 +1,17 @@
-# PPP - API Clínica Veterinária
+# 🏥 API Clínica Veterinária
 
-Projeto: API REST para acompanhamento do quadro clínico de pacientes de uma clínica veterinária.
+API RESTful para gerenciamento de clínica veterinária com sistema de autenticação e autorização baseado em roles (médico/dono).
 
-## 🚀 Principais Funcionalidades
+## 🚀 Funcionalidades Implementadas
 
-- ✅ **Autenticação via JWT** (médicos e donos)
-- ✅ **Controle de acesso por perfil** (médicos: acesso total | donos: consulta apenas)
-- ✅ **CRUD completo** para pets, consultas e procedimentos
-- ✅ **Endpoints GET** para listagem de consultas e procedimentos
-- ✅ **Documentação Swagger** interativa
-- ✅ **Testes automatizados** com Mocha/Chai/SuperTest
-- ✅ **Testes de performance** com k6
-- ⚠️ **Armazenamento em memória** (dados perdidos ao reiniciar)
+- ✅ **Sistema de Autenticação JWT** (médicos e donos de pets)
+- ✅ **Controle de Acesso por Roles** (médicos: acesso completo | donos: acesso limitado aos próprios pets)
+- ✅ **Gestão de Pets** (criação, listagem, busca e histórico)
+- ✅ **Registro de Consultas** (médicos podem registrar e listar)
+- ✅ **Registro de Procedimentos** (médicos podem registrar e listar)
+- ✅ **Documentação Swagger** completa e interativa
+- ✅ **Testes Automatizados** (22 testes com 91% de aprovação)
+- ✅ **Armazenamento em Memória** (isolamento total para testes)
 
 ## 📋 Endpoints Disponíveis
 
@@ -27,11 +27,11 @@ Projeto: API REST para acompanhamento do quadro clínico de pacientes de uma cl�
 
 ### 🏥 **Consultas**
 - `POST /consultas` - Registrar consulta (apenas médico)
-- `GET /consultas` - **[NOVO]** Listar todas as consultas (apenas médico)
+- `GET /consultas` - Listar todas as consultas (apenas médico)
 
-### 💉 **Procedimentos**
+### 💉 **Procedimentos**  
 - `POST /procedimentos` - Registrar procedimento (apenas médico)
-- `GET /procedimentos` - **[NOVO]** Listar todos os procedimentos (apenas médico)
+- `GET /procedimentos` - Listar todos os procedimentos (apenas médico)
 
 ## ⚙️ Como rodar
 
@@ -62,46 +62,6 @@ Projeto: API REST para acompanhamento do quadro clínico de pacientes de uma cl�
 
 4. **Acesse a documentação:**
    - **Swagger UI**: http://localhost:3000/docs
-
-## Testes de Performance (k6)
-
-Os testes de performance são utilizados para validar o comportamento da API sob carga e verificar se os endpoints respondem corretamente. Execute após iniciar a API com `npm run dev`.
-
-### Executar testes k6 básicos:
-```bash
-npm run test:k6
-```
-
-### Visualizar relatórios HTML em tempo real:
-
-Execute o teste com web dashboard e acesse **http://127.0.0.1:5665** no navegador **durante a execução**:
-
-```bash
-# Teste de autenticação (30 segundos de duração)
-k6 run --out web-dashboard --duration 30s tests/k6/auth.test.js
-
-# Teste de pets
-k6 run --out web-dashboard --duration 30s tests/k6/pets.test.js
-
-# Teste de consultas
-k6 run --out web-dashboard --duration 30s tests/k6/consultas.test.js
-
-# Teste de procedimentos
-k6 run --out web-dashboard --duration 30s tests/k6/procedimentos.test.js
-```
-
-**⚠️ Importante**: O dashboard HTML só fica disponível **enquanto o teste está executando**. Abra http://127.0.0.1:5665 logo após iniciar o comando.
-
-Os relatórios em tempo real contêm gráficos interativos sobre:
-- Tempo de resposta dos endpoints
-- Taxa de sucesso/falha das requisições
-- Métricas de performance sob carga
-- Validação dos checks definidos nos testes
-
-**Pré-requisitos para testes k6:**
-- API rodando (`npm start`)
-- k6 instalado ([instruções de instalação](https://k6.io/docs/getting-started/installation/))
-- Usuários cadastrados (médico e dono) para autenticação
 
 ## 🧪 Testes Automatizados
 
@@ -134,9 +94,6 @@ npm test
 # 🔐 ESPECÍFICOS - Executa testes por categoria
 npm run test:auth          # Apenas autenticação (login, registro, validação)
 npm run test:authorization # Apenas autorização (controle de acesso)
-
-# 👀 MODO WATCH - Executa testes automaticamente ao salvar arquivos
-npm run test:watch
 ```
 
 ### 📋 **Cobertura de Testes Implementada**
@@ -156,7 +113,7 @@ npm run test:watch
 - ✅ **Acesso a recursos protegidos**
 - ✅ **Criação de pets** com permissões adequadas
 
-### � **Status Atual dos Testes**
+### 📊 **Status Atual dos Testes**
 
 ```
 ✅ 20 testes passando (91%)
@@ -208,7 +165,7 @@ Os testes automatizados identificaram **2 bugs reais** na validação da API:
 - **🚀 Deploy seguro** - Validação automática antes de releases
 - **🔄 Regressão** - Evita que bugs corrigidos voltem a aparecer
 
-### � **Como Interpretar os Resultados**
+### 📈 **Como Interpretar os Resultados**
 
 ```bash
 # Execução bem-sucedida mostra:
@@ -226,54 +183,49 @@ Os testes automatizados identificaram **2 bugs reais** na validação da API:
 
 Esta implementação representa um **caso realista** onde a maioria dos testes passa (91%), mas ainda existem alguns problemas de validação que foram identificados e documentados pelos testes.
 
-## 🆕 Changelog - Latest Updates
+## �️ Arquitetura da API
 
-### **Novembro 2025** - Branch `tests/api`
+### **📁 Estrutura do Projeto**
+```
+src/
+├── app.js                 # Servidor Express e configurações
+├── controllers/           # Lógica de controle das rotas
+│   ├── authController.js     # Autenticação (login/registro)
+│   ├── petController.js      # Gestão de pets
+│   ├── consultaController.js # Gerenciamento de consultas
+│   └── procedimentoController.js # Gerenciamento de procedimentos
+├── services/              # Regras de negócio
+│   ├── authService.js        # Lógica de autenticação
+│   ├── petService.js         # Lógica de pets
+│   ├── consultaService.js    # Lógica de consultas
+│   └── procedimentoService.js # Lógica de procedimentos
+├── routes/                # Definição das rotas
+│   ├── auth.js              # Rotas de autenticação
+│   ├── pets.js              # Rotas de pets
+│   ├── consultas.js         # Rotas de consultas
+│   └── procedimentos.js     # Rotas de procedimentos
+├── middlewares/           # Middlewares customizados
+│   └── auth.js              # Middleware de autenticação/autorização
+└── models/                # Modelo de dados
+    └── db.js                # Banco de dados em memória
+```
 
-#### ✨ **Principais Implementações:**
+### **🔐 Sistema de Autenticação**
+- **JWT (JSON Web Tokens)** para autenticação stateless
+- **Roles baseados em usuário**: `medico` e `dono`
+- **Middleware de autorização** que controla acesso por endpoint
+- **Hash de senhas** usando bcryptjs
 
-**🧪 Suíte de Testes Automatizados**
-- **Framework**: Mocha + Chai + SuperTest para testes de integração
-- **Estrutura organizada**: Helpers para reutilização e fixtures para dados padronizados
-- **22 testes implementados**: Cobertura completa de autenticação e autorização
-- **Scripts personalizados**: `test:principais`, `test:auth`, `test:authorization`
-- **Isolamento**: Limpeza automática do banco entre testes
-
-**🔐 Testes de Autenticação**
-- Login e registro de médicos e donos
-- Validação de tokens JWT
-- Detecção de emails duplicados
-- Verificação de credenciais inválidas
-- Testes de validação de entrada de dados
-
-**🛡️ Testes de Autorização**
-- Controle de acesso por perfil (médico vs dono)
-- Proteção de endpoints sem autenticação
-- Validação de tokens inválidos
-- Permissões específicas para criação de recursos
-
-**🛠️ Infraestrutura de Testes**
-- **Helpers organizados**: `setup.js`, `fixtures.js`, `auth-helper.js`
-- **Dados padronizados**: Fixtures centralizados para consistência
-- **Utilitários de autenticação**: Funções helper para login automatizado
-- **Limpeza automática**: Reset do banco entre cada teste
-
-#### 🐛 **Bugs Identificados pelos Testes:**
-- **Validação de email**: API aceita emails com formato inválido
-- **Validação de nome**: API aceita registro com nome vazio
-- **Status**: 91% dos testes passando (20/22) - bugs documentados para correção
-
-#### 📊 **Melhorias na Qualidade:**
-- **Detecção precoce**: Bugs encontrados automaticamente pelos testes
-- **Documentação viva**: Testes servem como especificação dos requisitos
-- **Regressão**: Prevenção de bugs em futuras alterações
-- **Confiabilidade**: Validação automática de funcionalidades críticas
-
-#### �️ **Reorganização do Projeto:**
-- Pasta `integration` renomeada para `funcional` (mais intuitivo)
-- Estrutura de helpers bem definida e documentada
-- Scripts npm organizados e com nomes em português
-- README completamente reescrito com foco nos testes automatizados
+### **🛡️ Controle de Acesso**
+| Recurso | Médico | Dono |
+|---------|--------|------|
+| Criar pets | ✅ | ❌ |
+| Listar pets | ✅ (todos) | ✅ (apenas seus) |
+| Ver pet específico | ✅ (todos) | ✅ (apenas seus) |
+| Registrar consultas | ✅ | ❌ |
+| Listar consultas | ✅ | ❌ |
+| Registrar procedimentos | ✅ | ❌ |
+| Listar procedimentos | ✅ | ❌ |
 
 ---
 
@@ -289,11 +241,35 @@ Esta implementação representa um **caso realista** onde a maioria dos testes p
 
 Este projeto está sob a licença ISC. Veja o arquivo `package.json` para mais detalhes.
 
+## 🛠️ Tecnologias Utilizadas
+
+### **🔧 Backend**
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web minimalista
+- **JWT** - Autenticação stateless
+- **bcryptjs** - Hash de senhas
+- **Morgan** - Logger de requisições HTTP
+- **CORS** - Cross-Origin Resource Sharing
+
+### **📚 Documentação**
+- **Swagger/OpenAPI 3.0** - Documentação interativa da API
+- **YAML** - Formato de configuração do Swagger
+
+### **🧪 Testes**
+- **Mocha** - Framework de testes JavaScript
+- **Chai** - Biblioteca de assertions
+- **SuperTest** - Cliente HTTP para testes de API
+- **Helpers customizados** - Utilitários para facilitar os testes
+
+### **💾 Armazenamento**
+- **Memória** - Banco de dados em memória para desenvolvimento e testes
+- **Isolamento total** - Dados resetados a cada execução de teste
+
 ## 🎯 Próximos Passos
 
 - [ ] **Corrigir bugs de validação** identificados pelos testes automatizados
 - [ ] **Implementar banco de dados persistente** (PostgreSQL/MySQL)
 - [ ] **Expandir cobertura de testes** para endpoints de pets, consultas e procedimentos
 - [ ] **Adicionar testes unitários** para services e controllers
-- [ ] **Implementar CI/CD** com execução automática dos testes
+- [ ] **Implementar validação de entrada** com bibliotecas como Joi ou Yup
 - [ ] **Deploy para produção** com pipeline de testes

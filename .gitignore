@@ -1,2 +1,11 @@
 node_modules/
 .env
+
+# Arquivos de documentação de testes (não versionados)
+CONDICOES_DE_TESTE_V2.md
+EPICOS_USER_STORIES.md
+PLANO_DE_TESTES.md
+TEST_CHARTER.md
+REGRAS_NEGOCIO.md
+ANALISE_TESTES.md
+

@@ -8,7 +8,6 @@
     "start": "node src/app.js",
     "dev": "nodemon --watch src --exec node src/app.js", 
     "test": "mocha 'tests/supertest/funcional/*.test.js'",
-    "test:watch": "mocha 'tests/supertest/funcional/*.test.js' --watch",
     "test:auth": "mocha tests/supertest/funcional/autenticacao.test.js",
     "test:authorization": "mocha tests/supertest/funcional/autorizacao.test.js",
     "test:principais": "mocha tests/supertest/funcional/autenticacao.test.js tests/supertest/funcional/autorizacao.test.js",

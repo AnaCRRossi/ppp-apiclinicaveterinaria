@@ -2,12 +2,40 @@ openapi: 3.0.0
 info:
   title: API Clínica Veterinária
   version: '1.0.0'
-  description: API para acompanhamento do quadro clínico de pacientes de uma clínica veterinária.
+  description: |
+    API RESTful para gerenciamento de clínica veterinária com sistema de autenticação e autorização baseado em roles (médico/dono).
+    
+    ## Funcionalidades Principais:
+    - 🔐 **Autenticação JWT** para médicos e donos
+    - 🛡️ **Controle de acesso** baseado em roles
+    - 🐾 **Gestão de pets** com busca e histórico
+    - 🏥 **Registro de consultas e procedimentos**
+    
+    ## Roles do Sistema:
+    - **Médico**: Acesso completo - pode criar pets, registrar consultas/procedimentos, visualizar tudo
+    - **Dono**: Acesso limitado - pode visualizar apenas seus próprios pets e histórico
+  contact:
+    name: Ana Carolina Ragghianti de Rossi
+    email: ana.rossi@email.com
+  license:
+    name: ISC
 servers:
   - url: http://localhost:3000
+    description: Servidor de desenvolvimento
+tags:
+  - name: Autenticação
+    description: Endpoints para registro e login de usuários
+  - name: Pets
+    description: Gerenciamento de pets da clínica
+  - name: Consultas
+    description: Registro e listagem de consultas médicas
+  - name: Procedimentos
+    description: Registro e listagem de procedimentos realizados
 paths:
   /auth/medico/register:
     post:
+      tags:
+        - Autenticação
       summary: Registrar médico veterinário
       requestBody:
         required: true
@@ -15,13 +43,25 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - nome
+                - email
+                - senha
               properties:
                 nome:
                   type: string
+                  description: Nome completo do médico veterinário
+                  example: "Dr. João Silva"
                 email:
                   type: string
+                  format: email
+                  description: Email único para login
+                  example: "joao.silva@clinica.com"
                 senha:
                   type: string
+                  minLength: 6
+                  description: Senha para acesso (mínimo 6 caracteres)
+                  example: "senha123"
       responses:
         '201':
           description: Médico criado
@@ -37,6 +77,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /auth/dono/register:
     post:
+      tags:
+        - Autenticação
       summary: Registrar dono do pet
       requestBody:
         required: true
@@ -44,13 +86,25 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - nome
+                - email
+                - senha
               properties:
                 nome:
                   type: string
+                  description: Nome completo do dono do pet
+                  example: "Maria Santos"
                 email:
                   type: string
+                  format: email
+                  description: Email único para login
+                  example: "maria.santos@email.com"
                 senha:
                   type: string
+                  minLength: 6
+                  description: Senha para acesso (mínimo 6 caracteres)
+                  example: "senha123"
       responses:
         '201':
           description: Dono criado
@@ -66,6 +120,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /auth/login:
     post:
+      tags:
+        - Autenticação
       summary: Login (médico ou dono)
       requestBody:
         required: true
@@ -73,11 +129,19 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - email
+                - senha
               properties:
                 email:
                   type: string
+                  format: email
+                  description: Email cadastrado no sistema
+                  example: "joao.silva@clinica.com"
                 senha:
                   type: string
+                  description: Senha do usuário
+                  example: "senha123"
       responses:
         '200':
           description: Token JWT
@@ -88,8 +152,24 @@ paths:
                 properties:
                   token:
                     type: string
+                    description: Token JWT para autenticação
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                   user:
                     type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "med_12345"
+                      nome:
+                        type: string
+                        example: "Dr. João Silva"
+                      email:
+                        type: string
+                        example: "joao.silva@clinica.com"
+                      role:
+                        type: string
+                        enum: [medico, dono]
+                        example: "medico"
         '401':
           description: Credenciais inválidas
           content:
@@ -98,6 +178,8 @@ paths:
                 $ref: '#/components/schemas/Error'
   /pets:
     post:
+      tags:
+        - Pets
       summary: Criar pet (médico)
       security:
         - bearerAuth: []
@@ -107,15 +189,28 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - nome
+                - especie
+                - raca
+                - donoId
               properties:
                 nome:
                   type: string
+                  description: Nome do pet
+                  example: "Bolinha"
                 especie:
                   type: string
+                  description: Espécie do animal
+                  example: "Cão"
                 raca:
                   type: string
+                  description: Raça do animal
+                  example: "Golden Retriever"
                 donoId:
                   type: string
+                  description: ID do dono cadastrado no sistema
+                  example: "don_67890"
       responses:
         '201':
           description: Pet criado
@@ -129,7 +224,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acesso negado - apenas médicos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
+      tags:
+        - Pets
       summary: Buscar/listar pets
       security:
         - bearerAuth: []
@@ -141,15 +250,23 @@ paths:
           description: Texto para buscar por nome ou raça
       responses:
         '200':
-          description: Lista de pets
+          description: Lista de pets (médico vê todos, dono vê apenas os seus)
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Pet'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /pets/{id}:
     get:
+      tags:
+        - Pets
       summary: Obter dados e histórico do pet
       security:
         - bearerAuth: []
@@ -193,7 +310,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /consultas:
+    get:
+      tags:
+        - Consultas
+      summary: Listar consultas (médico)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de consultas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Consulta'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acesso negado - apenas médicos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
+      tags:
+        - Consultas
       summary: Registrar consulta (médico)
       security:
         - bearerAuth: []
@@ -203,14 +349,24 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - petId
+                - data
+                - descricao
               properties:
                 petId:
                   type: string
+                  description: ID do pet que será consultado
+                  example: "pet_12345"
                 data:
                   type: string
                   format: date-time
+                  description: Data e hora da consulta
+                  example: "2025-11-05T14:30:00.000Z"
                 descricao:
                   type: string
+                  description: Descrição detalhada da consulta realizada
+                  example: "Consulta de rotina - vacinação anual"
       responses:
         '201':
           description: Consulta criada
@@ -224,8 +380,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acesso negado - apenas médicos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /procedimentos:
+    get:
+      tags:
+        - Procedimentos
+      summary: Listar procedimentos (médico)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de procedimentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Procedimento'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acesso negado - apenas médicos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
+      tags:
+        - Procedimentos
       summary: Registrar procedimento (médico)
       security:
         - bearerAuth: []
@@ -235,14 +432,24 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - petId
+                - data
+                - descricao
               properties:
                 petId:
                   type: string
+                  description: ID do pet que receberá o procedimento
+                  example: "pet_12345"
                 data:
                   type: string
                   format: date-time
+                  description: Data e hora do procedimento
+                  example: "2025-11-05T16:00:00.000Z"
                 descricao:
                   type: string
+                  description: Descrição detalhada do procedimento realizado
+                  example: "Cirurgia de castração"
       responses:
         '201':
           description: Procedimento criado
@@ -252,6 +459,18 @@ paths:
                 $ref: '#/components/schemas/Procedimento'
         '400':
           description: Pet ou médico não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acesso negado - apenas médicos
           content:
             application/json:
               schema:
@@ -268,62 +487,106 @@ components:
       properties:
         id:
           type: string
+          description: Identificador único do médico
+          example: "med_12345"
         nome:
           type: string
+          description: Nome completo do médico
+          example: "Dr. João Silva"
         email:
           type: string
+          description: Email do médico
+          example: "joao.silva@clinica.com"
     DonoResponse:
       type: object
       properties:
         id:
           type: string
+          description: Identificador único do dono
+          example: "don_67890"
         nome:
           type: string
+          description: Nome completo do dono
+          example: "Maria Santos"
         email:
           type: string
+          description: Email do dono
+          example: "maria.santos@email.com"
     Pet:
       type: object
       properties:
         id:
           type: string
+          description: Identificador único do pet
+          example: "pet_12345"
         nome:
           type: string
+          description: Nome do pet
+          example: "Bolinha"
         especie:
           type: string
+          description: Espécie do animal
+          example: "Cão"
         raca:
           type: string
+          description: Raça do animal
+          example: "Golden Retriever"
         donoId:
           type: string
+          description: ID do dono do pet
+          example: "don_67890"
     Consulta:
       type: object
       properties:
         id:
           type: string
+          description: Identificador único da consulta
+          example: "con_12345"
         petId:
           type: string
+          description: ID do pet consultado
+          example: "pet_12345"
         medicoId:
           type: string
+          description: ID do médico que realizou a consulta
+          example: "med_12345"
         data:
           type: string
           format: date-time
+          description: Data e hora da consulta
+          example: "2025-11-05T14:30:00.000Z"
         descricao:
           type: string
+          description: Descrição da consulta realizada
+          example: "Consulta de rotina - vacinação anual"
     Procedimento:
       type: object
       properties:
         id:
           type: string
+          description: Identificador único do procedimento
+          example: "pro_12345"
         petId:
           type: string
+          description: ID do pet que recebeu o procedimento
+          example: "pet_12345"
         medicoId:
           type: string
+          description: ID do médico que realizou o procedimento
+          example: "med_12345"
         data:
           type: string
           format: date-time
+          description: Data e hora do procedimento
+          example: "2025-11-05T16:00:00.000Z"
         descricao:
           type: string
+          description: Descrição do procedimento realizado
+          example: "Cirurgia de castração"
     Error:
       type: object
       properties:
         error:
           type: string
+          description: Mensagem de erro detalhada
+          example: "Email já cadastrado"
