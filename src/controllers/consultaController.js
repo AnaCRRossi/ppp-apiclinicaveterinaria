@@ -9,3 +9,12 @@ export function createConsulta(req, res) {
     res.status(err.status || 500).json({ error: err.message || 'Erro interno' });
   }
 }
+
+export function getConsultas(req, res) {
+  try {
+    const consultas = consultaService.getConsultas();
+    res.status(200).json(consultas);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message || 'Erro interno' });
+  }
+}

@@ -9,3 +9,7 @@ export function createProcedimento({ petId, medicoId, data, descricao }) {
   db.procedimentos.push(procedimento);
   return procedimento;
 }
+
+export function getProcedimentos() {
+  return db.procedimentos;
+}

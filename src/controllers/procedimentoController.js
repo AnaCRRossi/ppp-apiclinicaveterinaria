@@ -9,3 +9,12 @@ export function createProcedimento(req, res) {
     res.status(err.status || 500).json({ error: err.message || 'Erro interno' });
   }
 }
+
+export function getProcedimentos(req, res) {
+  try {
+    const procedimentos = procedimentoService.getProcedimentos();
+    res.status(200).json(procedimentos);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message || 'Erro interno' });
+  }
+}

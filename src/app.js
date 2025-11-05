@@ -25,6 +25,10 @@ app.use('/procedimentos', procedimentoRoutes);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 3000;
+
+// Sempre iniciar o servidor (os testes usarão supertest que não precisa de servidor rodando)
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+export default app;

@@ -1,5 +1,3 @@
-// Banco de dados em memória simples
-
 const db = {
   medicos: [],
   donos: [],

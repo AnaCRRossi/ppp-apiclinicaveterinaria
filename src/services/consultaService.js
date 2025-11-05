@@ -9,3 +9,7 @@ export function createConsulta({ petId, medicoId, data, descricao }) {
   db.consultas.push(consulta);
   return consulta;
 }
+
+export function getConsultas() {
+  return db.consultas;
+}
