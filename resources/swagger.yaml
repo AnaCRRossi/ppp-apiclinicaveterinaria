@@ -2,21 +2,7 @@ openapi: 3.0.0
 info:
   title: API Clínica Veterinária
   version: '1.0.0'
-  description: |
-    API RESTful para gerenciamento de clínica veterinária com sistema de autenticação e autorização baseado em roles (médico/dono).
-    
-    ## Funcionalidades Principais:
-    - 🔐 **Autenticação JWT** para médicos e donos
-    - 🛡️ **Controle de acesso** baseado em roles
-    - 🐾 **Gestão de pets** com busca e histórico
-    - 🏥 **Registro de consultas e procedimentos**
-    
-    ## Roles do Sistema:
-    - **Médico**: Acesso completo - pode criar pets, registrar consultas/procedimentos, visualizar tudo
-    - **Dono**: Acesso limitado - pode visualizar apenas seus próprios pets e histórico
-  contact:
-    name: Ana Carolina Ragghianti de Rossi
-    email: ana.rossi@email.com
+  description: API RESTful para gerenciamento de clínica veterinária com sistema de autenticação e autorização baseado em roles (médico/dono).
   license:
     name: ISC
 servers:

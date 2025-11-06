@@ -15,14 +15,22 @@ const swaggerDocument = YAML.load('./resources/swagger.yaml');
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));
+
+// Primeiro configurar as rotas do Swagger (sem logging)
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Depois configurar morgan apenas para outras rotas
+app.use(morgan('dev', {
+  skip: function (req, res) {
+    // Pular logs das rotas do Swagger
+    return req.originalUrl && req.originalUrl.includes('/docs');
+  }
+}));
 
 app.use('/auth', authRoutes);
 app.use('/pets', petRoutes);
 app.use('/consultas', consultaRoutes);
 app.use('/procedimentos', procedimentoRoutes);
-
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 3000;
 
