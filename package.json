@@ -13,6 +13,13 @@
     "test:principais": "mocha tests/supertest/funcional/autenticacao.test.js tests/supertest/funcional/autorizacao.test.js",
     "test:k6": "k6 run tests/k6/auth.test.js && k6 run tests/k6/pets.test.js && k6 run tests/k6/consultas.test.js && k6 run tests/k6/procedimentos.test.js"
   },
+  "mocha": {
+    "require": ["tests/supertest/helpers/setup.js"],
+    "timeout": 10000,
+    "recursive": true,
+    "reporter": "spec",
+    "exit": true
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AnaCRRossi/ppp-apiclinicaveterinaria.git"

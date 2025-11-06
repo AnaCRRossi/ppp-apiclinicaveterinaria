@@ -1,7 +1,0 @@
-{
-  "require": ["tests/supertest/helpers/setup.js"],
-  "timeout": 10000,
-  "recursive": true,
-  "reporter": "spec",
-  "exit": true
-}
