@@ -6,15 +6,18 @@
   "type": "module",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon --watch src --exec node src/app.js", 
+    "dev": "nodemon --watch src --exec node src/app.js",
     "test": "mocha 'tests/supertest/funcional/*.test.js'",
     "test:auth": "mocha tests/supertest/funcional/autenticacao.test.js",
     "test:authorization": "mocha tests/supertest/funcional/autorizacao.test.js",
-    "test:principais": "mocha tests/supertest/funcional/autenticacao.test.js tests/supertest/funcional/autorizacao.test.js",
+    "test:principais": "mocha tests/supertest/funcional/autenticacao.test.js tests/supertest/funcional/autorizacao.test.js --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=test-results,html=true,json=true",
+    "test:report": "mocha tests/supertest/funcional/autenticacao.test.js tests/supertest/funcional/autorizacao.test.js --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=test-results,html=true,json=true",
     "test:k6": "k6 run tests/k6/auth.test.js && k6 run tests/k6/pets.test.js && k6 run tests/k6/consultas.test.js && k6 run tests/k6/procedimentos.test.js"
   },
   "mocha": {
-    "require": ["tests/supertest/helpers/setup.js"],
+    "require": [
+      "tests/supertest/helpers/setup.js"
+    ],
     "timeout": 10000,
     "recursive": true,
     "reporter": "spec",
@@ -42,6 +45,7 @@
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "mochawesome": "^7.1.4",
     "morgan": "^1.10.0",
     "swagger-ui-express": "^4.6.3",
     "yamljs": "^0.3.0"

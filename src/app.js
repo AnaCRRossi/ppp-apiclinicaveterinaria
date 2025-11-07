@@ -34,9 +34,11 @@ app.use('/procedimentos', procedimentoRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-// Sempre iniciar o servidor (os testes usarão supertest que não precisa de servidor rodando)
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+// Só iniciar o servidor se este arquivo for executado diretamente (não importado pelos testes)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
+}
 
 export default app;
