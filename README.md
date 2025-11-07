@@ -101,29 +101,6 @@ npm run test:authorization # Apenas autorização (controle de acesso)
 # ⚡ PERFORMANCE - Executa testes de carga com k6
 npm run test:k6           # Testes de performance e stress da API
 ```
-
-### 📋 **Cobertura de Testes Implementada**
-
-#### **🔐 Testes de Autenticação** (`autenticacao.test.js`)
-- ✅ **Login de usuários** (médico e dono)
-- ✅ **Registro de médicos** e **donos**
-- ✅ **Validação de credenciais** (sucesso e erro)
-- ✅ **Verificação de tokens JWT**
-- ✅ **Detecção de emails duplicados**
-- ❌ **Validação de dados de entrada** (2 bugs identificados)
-
-#### **🛡️ Testes de Autorização** (`autorizacao.test.js`)
-- ✅ **Controle de acesso por perfil** (médico vs dono)
-- ✅ **Proteção de endpoints** sem token
-- ✅ **Validação de tokens inválidos**
-- ✅ **Acesso a recursos protegidos**
-- ✅ **Criação de pets** com permissões adequadas
-
-Testes por categoria:
-🔐 Autenticação:  10/12 (83%) - 2 bugs de validação identificados
-🛡️ Autorização:   10/10 (100%) - Todos os controles funcionando
-```
-
 ### ⚡ **Testes de Performance (k6)**
 
 Além dos testes funcionais, o projeto inclui **testes de performance** usando **k6** para validar o comportamento da API sob carga.
@@ -155,25 +132,6 @@ k6 run tests/k6/procedimentos.test.js
 - **Taxa de erro** - Percentual de falhas
 - **Carga gradual** - Comportamento sob stress
 
-### 🛠️ **Utilitários de Teste (Helpers)**
-
-#### **`setup.js`** - Configuração Base
-- Configuração do Chai + SuperTest
-- Função `clearDatabase()` para isolamento entre testes
-- Exporta `expect` e `request` para uso nos testes
-
-#### **`fixtures.js`** - Dados Padronizados
-- Dados válidos para médicos, donos, pets, consultas e procedimentos
-- Múltiplas variações para cenários diversos
-- Dados inválidos para testes de erro
-- Credenciais de login centralizadas
-
-#### **`auth-helper.js`** - Utilitários de Autenticação
-- `createMedicoAndLogin()` - Registra médico + retorna token
-- `createDonoAndLogin()` - Registra dono + retorna token
-- `createCompleteSetup()` - Setup completo (médico, dono, pet)
-- `authenticatedRequest()` - Helper para requisições autenticadas
-
 ### 📈 **Como Interpretar os Resultados**
 
 ```bash
@@ -182,18 +140,7 @@ k6 run tests/k6/procedimentos.test.js
 ✔ Deve permitir acesso para médico autenticado
 ✔ Deve negar acesso para dono de pet
 
-# Bugs identificados mostram:
-1) Deve retornar erro 400 quando email tem formato inválido
-   AssertionError: expected 201 to equal 400
-   
-2) Deve retornar erro 400 quando nome está vazio  
-   AssertionError: expected 201 to equal 400
 ```
-
-Esta implementação representa um **caso realista** onde a maioria dos testes passa (91%), mas ainda existem alguns problemas de validação que foram identificados e documentados pelos testes.
-
-## �️ Arquitetura da API
-
 ### **📁 Estrutura do Projeto**
 ```
 src/
@@ -219,25 +166,7 @@ src/
     └── db.js                # Banco de dados em memória
 ```
 
-### **🔐 Sistema de Autenticação**
-- **JWT (JSON Web Tokens)** para autenticação stateless
-- **Roles baseados em usuário**: `medico` e `dono`
-- **Middleware de autorização** que controla acesso por endpoint
-- **Hash de senhas** usando bcryptjs
-
 ---
-
-## 🤝 Contribuição
-
-1. Faça fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença ISC. Veja o arquivo `package.json` para mais detalhes.
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -245,7 +174,6 @@ Este projeto está sob a licença ISC. Veja o arquivo `package.json` para mais d
 - **Node.js** - Runtime JavaScript
 - **Express.js** - Framework web minimalista
 - **JWT** - Autenticação stateless
-
 
 ### **📚 Documentação**
 - **Swagger/OpenAPI 3.0** - Documentação interativa da API
@@ -255,9 +183,4 @@ Este projeto está sob a licença ISC. Veja o arquivo `package.json` para mais d
 - **Mocha** - Framework de testes JavaScript
 - **Chai** - Biblioteca de assertions
 - **SuperTest** - Cliente HTTP para testes de API
-- **Helpers customizados** - Utilitários para facilitar os testes
-
-### **💾 Armazenamento**
-- **Memória** - Banco de dados em memória para desenvolvimento e testes
-- **Isolamento total** - Dados resetados a cada execução de teste
 
