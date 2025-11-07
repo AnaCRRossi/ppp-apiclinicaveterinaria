@@ -35,7 +35,7 @@ app.use('/procedimentos', procedimentoRoutes);
 const PORT = process.env.PORT || 3000;
 
 // Só iniciar o servidor se este arquivo for executado diretamente (não importado pelos testes)
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && process.argv[1].endsWith('app.js')) {
   app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
   });

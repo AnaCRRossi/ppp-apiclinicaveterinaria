@@ -58,6 +58,9 @@ API RESTful para gerenciamento de clínica veterinária com sistema de autentica
    # Testes específicos
    npm run test:auth        # Apenas autenticação
    npm run test:authorization  # Apenas autorização
+   
+   # Testes de performance (k6)
+   npm run test:k6         # Executa todos os testes de carga
    ```
 
 4. **Acesse a documentação:**
@@ -91,9 +94,12 @@ npm run test:principais
 # 🔄 TODOS - Executa toda a suíte de testes funcionais
 npm test
 
-# 🔐 ESPECÍFICOS - Executa testes por categoria
+# � ESPECÍFICOS - Executa testes por categoria
 npm run test:auth          # Apenas autenticação (login, registro, validação)
 npm run test:authorization # Apenas autorização (controle de acesso)
+
+# ⚡ PERFORMANCE - Executa testes de carga com k6
+npm run test:k6           # Testes de performance e stress da API
 ```
 
 ### 📋 **Cobertura de Testes Implementada**
@@ -113,30 +119,41 @@ npm run test:authorization # Apenas autorização (controle de acesso)
 - ✅ **Acesso a recursos protegidos**
 - ✅ **Criação de pets** com permissões adequadas
 
-### 📊 **Status Atual dos Testes**
-
-```
-✅ 20 testes passando (91%)
-❌ 2 testes falhando (9%)
-
 Testes por categoria:
 🔐 Autenticação:  10/12 (83%) - 2 bugs de validação identificados
 🛡️ Autorização:   10/10 (100%) - Todos os controles funcionando
 ```
 
-### 🐛 **Bugs Identificados pelos Testes**
+### ⚡ **Testes de Performance (k6)**
 
-Os testes automatizados identificaram **2 bugs reais** na validação da API:
+Além dos testes funcionais, o projeto inclui **testes de performance** usando **k6** para validar o comportamento da API sob carga.
 
-1. **❌ Validação de Email Inválido**
-   - **Problema**: API aceita emails sem formato válido (ex: "email-sem-arroba")
-   - **Esperado**: Retornar erro 400 com mensagem de email inválido
-   - **Atual**: Retorna 201 (sucesso) e cria usuário
+#### **📁 Estrutura dos Testes k6**
+```
+tests/k6/
+├── auth.test.js          # Performance de autenticação
+├── pets.test.js          # Performance de gestão de pets
+├── consultas.test.js     # Performance de consultas
+└── procedimentos.test.js # Performance de procedimentos
+```
 
-2. **❌ Validação de Nome Vazio**
-   - **Problema**: API aceita registro com campo nome vazio
-   - **Esperado**: Retornar erro 400 com mensagem de nome obrigatório
-   - **Atual**: Retorna 201 (sucesso) e cria usuário
+#### **🚀 Como Executar**
+```bash
+# Executar todos os testes de performance
+npm run test:k6
+
+# Executar testes individuais (requer k6 instalado)
+k6 run tests/k6/auth.test.js
+k6 run tests/k6/pets.test.js
+k6 run tests/k6/consultas.test.js
+k6 run tests/k6/procedimentos.test.js
+```
+
+#### **📊 Métricas Monitoradas**
+- **Tempo de resposta** - Latência dos endpoints
+- **Throughput** - Requisições por segundo
+- **Taxa de erro** - Percentual de falhas
+- **Carga gradual** - Comportamento sob stress
 
 ### 🛠️ **Utilitários de Teste (Helpers)**
 
@@ -156,14 +173,6 @@ Os testes automatizados identificaram **2 bugs reais** na validação da API:
 - `createDonoAndLogin()` - Registra dono + retorna token
 - `createCompleteSetup()` - Setup completo (médico, dono, pet)
 - `authenticatedRequest()` - Helper para requisições autenticadas
-
-### 🎯 **Benefícios dos Testes Automatizados**
-
-- **🔍 Detecção precoce de bugs** - Encontrou 2 problemas de validação
-- **🛡️ Confiabilidade** - Garante que mudanças não quebrem funcionalidades
-- **📚 Documentação viva** - Testes servem como documentação dos requisitos
-- **🚀 Deploy seguro** - Validação automática antes de releases
-- **🔄 Regressão** - Evita que bugs corrigidos voltem a aparecer
 
 ### 📈 **Como Interpretar os Resultados**
 
@@ -216,17 +225,6 @@ src/
 - **Middleware de autorização** que controla acesso por endpoint
 - **Hash de senhas** usando bcryptjs
 
-### **🛡️ Controle de Acesso**
-| Recurso | Médico | Dono |
-|---------|--------|------|
-| Criar pets | ✅ | ❌ |
-| Listar pets | ✅ (todos) | ✅ (apenas seus) |
-| Ver pet específico | ✅ (todos) | ✅ (apenas seus) |
-| Registrar consultas | ✅ | ❌ |
-| Listar consultas | ✅ | ❌ |
-| Registrar procedimentos | ✅ | ❌ |
-| Listar procedimentos | ✅ | ❌ |
-
 ---
 
 ## 🤝 Contribuição
@@ -247,9 +245,7 @@ Este projeto está sob a licença ISC. Veja o arquivo `package.json` para mais d
 - **Node.js** - Runtime JavaScript
 - **Express.js** - Framework web minimalista
 - **JWT** - Autenticação stateless
-- **bcryptjs** - Hash de senhas
-- **Morgan** - Logger de requisições HTTP
-- **CORS** - Cross-Origin Resource Sharing
+
 
 ### **📚 Documentação**
 - **Swagger/OpenAPI 3.0** - Documentação interativa da API
@@ -265,11 +261,3 @@ Este projeto está sob a licença ISC. Veja o arquivo `package.json` para mais d
 - **Memória** - Banco de dados em memória para desenvolvimento e testes
 - **Isolamento total** - Dados resetados a cada execução de teste
 
-## 🎯 Próximos Passos
-
-- [ ] **Corrigir bugs de validação** identificados pelos testes automatizados
-- [ ] **Implementar banco de dados persistente** (PostgreSQL/MySQL)
-- [ ] **Expandir cobertura de testes** para endpoints de pets, consultas e procedimentos
-- [ ] **Adicionar testes unitários** para services e controllers
-- [ ] **Implementar validação de entrada** com bibliotecas como Joi ou Yup
-- [ ] **Deploy para produção** com pipeline de testes
